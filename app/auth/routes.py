@@ -18,6 +18,23 @@ def login():
             flash('Email y contraseña son requeridos', 'error')
             return render_template('auth/login.html')
 
+        # ── Usuario de prueba local (sin Supabase) ─────────────
+        DEV_EMAIL = 'admin@orbit.local'
+        DEV_PASSWORD = 'orbit1234'
+        if email == DEV_EMAIL and password == DEV_PASSWORD:
+            session.clear()
+            session['user_id'] = 'dev-user-id'
+            session['email'] = DEV_EMAIL
+            session['nombre'] = 'Admin Local'
+            session['rol'] = 'administrador'
+            session['access_token'] = 'dev-token'
+            session['refresh_token'] = 'dev-refresh'
+            session['contratos_lista'] = [{'id': 'dev-contrato-id', 'nombre': 'Contrato Demo'}]
+            session['contrato_activo_id'] = 'dev-contrato-id'
+            session['modulos_visibles'] = ['general', 'hitos', 'encuestas', 'instalaciones']
+            return redirect(url_for('dashboard.general'))
+        # ───────────────────────────────────────────────────────
+
         try:
             auth_client = get_auth_client()
             resp = auth_client.auth.sign_in_with_password(

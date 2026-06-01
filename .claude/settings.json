@@ -10,7 +10,10 @@
       "Bash(.venv/Scripts/python -c \"from app import create_app; app = create_app\\(\\); print\\('OK'\\)\")",
       "Bash(.venv/Scripts/python -m pytest tests/ -v --tb=short)",
       "Bash(git add *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(.venv/Scripts/python -m pytest tests/test_auth.py -v --tb=short)",
+      "Bash(.venv/Scripts/python -m pytest tests/test_dashboard.py -v --tb=short)",
+      "Bash(.venv/Scripts/python -c ' *)"
     ],
     "additionalDirectories": [
       "c:\\Users\\Victor Pulido\\Documents\\GIT\\ORBIT_SERVIALCO_FLASK\\docs\\superpowers"
