@@ -16,7 +16,9 @@
       "Bash(.venv/Scripts/python -c ' *)",
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Victor Pulido\\\\Documents\\\\GIT\\\\BDO_SERVIALCO\" -Recurse -Directory)",
       "Bash(Select-Object -ExpandProperty FullName)",
-      "Bash(Sort-Object)"
+      "Bash(Sort-Object)",
+      "Bash(.venv\\\\Scripts\\\\python.exe -m pytest tests/ -q)",
+      "Bash(python -m pytest tests/ -q)"
     ],
     "additionalDirectories": [
       "c:\\Users\\Victor Pulido\\Documents\\GIT\\ORBIT_SERVIALCO_FLASK\\docs\\superpowers"
