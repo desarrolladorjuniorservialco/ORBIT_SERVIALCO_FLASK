@@ -11,10 +11,14 @@ def create_app(config_object=None):
     else:
         app.config.from_object(config_object or Config)
 
+    # ── Blueprints ─────────────────────────────────────────
     from app.auth import bp as auth_bp
     app.register_blueprint(auth_bp)
 
-    # Ruta raíz — redirige según sesión
+    from app.dashboard import bp as dashboard_bp
+    app.register_blueprint(dashboard_bp)
+
+    # ── Ruta raíz ──────────────────────────────────────────
     from flask import session, redirect, url_for
 
     @app.route('/')
@@ -23,7 +27,7 @@ def create_app(config_object=None):
             return redirect(url_for('dashboard.general'))
         return redirect(url_for('auth.login'))
 
-    # Context processor — datos disponibles en todos los templates
+    # ── Context processor ──────────────────────────────────
     @app.context_processor
     def inject_globals():
         from flask import session
@@ -34,5 +38,44 @@ def create_app(config_object=None):
             'current_user_nombre': session.get('nombre', ''),
             'current_user_rol': session.get('rol', ''),
         }
+
+    # ── Filtros Jinja2 ─────────────────────────────────────
+    @app.template_filter('currency_col')
+    def currency_col(value):
+        if value is None:
+            return 'N/A'
+        try:
+            v = float(value)
+        except (TypeError, ValueError):
+            return str(value)
+        if v >= 1_000_000_000:
+            return f'${v / 1_000_000_000:,.2f} milM'
+        if v >= 1_000_000:
+            return f'${v / 1_000_000:,.2f} M'
+        return f'${v:,.0f}'
+
+    @app.template_filter('date_col')
+    def date_col(value):
+        if not value:
+            return '—'
+        from datetime import date
+        if isinstance(value, str):
+            try:
+                value = date.fromisoformat(value)
+            except ValueError:
+                return value
+        return value.strftime('%d/%m/%Y')
+
+    @app.template_filter('progress_color')
+    def progress_color(value):
+        try:
+            v = float(value)
+        except (TypeError, ValueError):
+            return 'neutral'
+        if v >= 50:
+            return 'success'
+        if v >= 20:
+            return 'warning'
+        return 'danger'
 
     return app

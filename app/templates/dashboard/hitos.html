@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}Hitos — ORBIT SERVIALCO{% endblock %}
+{% block breadcrumb %}Hitos{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-header__title">Hitos del Contrato</h1>
+  <p class="page-header__sub">Entregables y su estado de aprobación</p>
+</div>
+
+<div class="table-wrap">
+  {% if hitos %}
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Descripción</th>
+        <th>Fecha límite</th>
+        <th>Estado</th>
+        <th>Archivo</th>
+        {% if current_user_rol in ['administrador', 'supervision'] %}
+        <th>Cambiar estado</th>
+        {% endif %}
+        <th>Comentarios</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for hito in hitos %}
+      <tr>
+        <td style="font-weight:500;">{{ hito.nombre }}</td>
+        <td class="text-muted text-sm">{{ hito.descripcion or '—' }}</td>
+        <td>{{ hito.fecha_limite|date_col }}</td>
+        <td>
+          <span id="badge-hito-{{ hito.id }}"
+                class="badge badge--{{ 'success' if hito.estado == 'aprobado' else ('warning' if hito.estado == 'en_revision' else 'neutral') }}">
+            {{ {'pendiente':'Pendiente','en_revision':'En revisión','aprobado':'Aprobado'}.get(hito.estado, hito.estado) }}
+          </span>
+        </td>
+        <td>
+          {% if hito.archivo_url %}
+          <a href="{{ hito.archivo_url }}" target="_blank" rel="noopener" class="btn btn--ghost btn--sm">
+            📎 Ver
+          </a>
+          {% else %}
+          <span class="text-muted text-sm">—</span>
+          {% endif %}
+        </td>
+        {% if current_user_rol in ['administrador', 'supervision'] %}
+        <td>
+          <select class="form-select"
+                  style="width:auto;padding:.25rem .5rem;font-size:var(--text-xs);"
+                  hx-patch="/api/hitos/{{ hito.id }}/estado"
+                  hx-trigger="change"
+                  hx-target="#badge-hito-{{ hito.id }}"
+                  hx-swap="outerHTML"
+                  onclick="event.stopPropagation()">
+            <option value="pendiente"    {% if hito.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+            <option value="en_revision"  {% if hito.estado == 'en_revision' %}selected{% endif %}>En revisión</option>
+            <option value="aprobado"     {% if hito.estado == 'aprobado' %}selected{% endif %}>Aprobado</option>
+          </select>
+        </td>
+        {% endif %}
+        <td>
+          <button class="btn btn--ghost btn--sm"
+                  hx-get="/api/comentarios?tipo=hito&ref={{ hito.id }}&contrato_id={{ contrato_activo_id }}"
+                  hx-target="#comments-panel-content"
+                  hx-swap="innerHTML"
+                  hx-on::after-request="document.getElementById('comments-section').style.display=''">
+            💬
+          </button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div style="padding:3rem;text-align:center;color:var(--color-text-muted);">
+    No hay hitos registrados para este contrato.
+  </div>
+  {% endif %}
+</div>
+
+<div id="comments-section" class="card" style="margin-top:1rem;display:none;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+    <h3 style="font-size:var(--text-base);font-weight:600;">Comentarios del hito</h3>
+    <button class="btn btn--ghost btn--sm"
+            onclick="document.getElementById('comments-section').style.display='none'">
+      ✕ Cerrar
+    </button>
+  </div>
+  <div id="comments-panel-content"></div>
+</div>
+
+{% endblock %}

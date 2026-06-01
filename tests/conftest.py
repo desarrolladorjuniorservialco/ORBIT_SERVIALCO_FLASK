@@ -15,8 +15,8 @@ TEST_CONFIG = {
 def app():
     _app = create_app(TEST_CONFIG)
 
-    # Stub dashboard blueprint — evita BuildError en tests de auth/api cuando
-    # el blueprint real aún no está registrado
+    # Stub dashboard blueprint — evita BuildError cuando el blueprint real
+    # aún no está registrado (Fases 1-4)
     if 'dashboard' not in _app.blueprints:
         from flask import Blueprint
         dash_bp = Blueprint('dashboard', __name__)
@@ -26,6 +26,18 @@ def app():
             return 'general'
 
         _app.register_blueprint(dash_bp)
+
+    # Stub api blueprint — evita BuildError en url_for('api.set_contrato')
+    # cuando el blueprint real aún no está registrado (Fases 1-5)
+    if 'api' not in _app.blueprints:
+        from flask import Blueprint
+        api_bp = Blueprint('api', __name__, url_prefix='/api')
+
+        @api_bp.route('/set-contrato', methods=['POST'])
+        def set_contrato():
+            return '', 200
+
+        _app.register_blueprint(api_bp)
 
     return _app
 
