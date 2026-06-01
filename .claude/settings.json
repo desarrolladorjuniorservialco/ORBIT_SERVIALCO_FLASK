@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p \"c:\\\\Users\\\\Victor Pulido\\\\Documents\\\\GIT\\\\ORBIT_SERVIALCO_FLASK\\\\docs\\\\superpowers\\\\specs\")",
+      "Bash(git init *)",
+      "Bash(mkdir -p app/auth app/dashboard app/api app/models app/utils app/templates/auth app/templates/dashboard app/templates/partials app/static/css app/static/js tests/test_models tests/test_utils docs/supabase)",
+      "Bash(cd \"c:/Users/Victor Pulido/Documents/GIT/ORBIT_SERVIALCO_FLASK\" && for d in app app/auth app/dashboard app/api app/models app/utils tests tests/test_models tests/test_utils; do touch \"$d/__init__.py\"; done && find . -name \"__init__.py\" | grep -v __pycache__)",
+      "Bash(python -m venv .venv)",
+      "Bash(.venv/Scripts/pip install *)",
+      "Bash(.venv/Scripts/python -c \"from app import create_app; app = create_app\\(\\); print\\('OK'\\)\")",
+      "Bash(.venv/Scripts/python -m pytest tests/ -v --tb=short)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\Victor Pulido\\Documents\\GIT\\ORBIT_SERVIALCO_FLASK\\docs\\superpowers"
+    ]
+  }
+}
