@@ -21,8 +21,12 @@ def create_app(config_object=None):
     from app.api import bp as api_bp
     app.register_blueprint(api_bp)
 
-    # ── Ruta raíz ──────────────────────────────────────────
-    from flask import session, redirect, url_for
+    # ── Rutas base ─────────────────────────────────────────
+    from flask import session, redirect, url_for, Response
+
+    @app.route('/favicon.ico')
+    def favicon():
+        return Response(status=204)
 
     @app.route('/')
     def index():
