@@ -86,3 +86,42 @@
 
 /* Ocultar hamburger en desktop */
 .hamburger { display: none; }
+
+/* ── Grupos colapsables del sidebar ─────────────────────── */
+.sidebar__collapsible { border: none; background: none; }
+
+.sidebar__group-toggle {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem 0.375rem;
+  user-select: none;
+}
+.sidebar__group-toggle::-webkit-details-marker { display: none; }
+.sidebar__group-toggle::marker { display: none; }
+
+.sidebar__group-label-text {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #475569;
+  transition: color var(--transition-fast);
+}
+.sidebar__group-toggle:hover .sidebar__group-label-text { color: #94A3B8; }
+
+.sidebar__chevron {
+  font-size: 0.7rem;
+  color: #475569;
+  transition: transform var(--transition-base), color var(--transition-fast);
+  display: inline-block;
+}
+.sidebar__collapsible[open] > .sidebar__group-toggle .sidebar__chevron {
+  transform: rotate(90deg);
+}
+
+.sidebar__group-children { padding-bottom: 0.5rem; }
+
+.sidebar__item--child { padding-left: 2.25rem; font-size: var(--text-xs); }

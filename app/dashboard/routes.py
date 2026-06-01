@@ -57,3 +57,71 @@ def instalaciones():
     if 'instalaciones' not in session.get('modulos_visibles', []):
         abort(403)
     return render_template('dashboard/instalaciones.html')
+
+
+# ── Levantamiento ──────────────────────────────────────────
+
+@bp.route('/dashboard/levantamiento/encuestas')
+@login_required
+def encuestas_sociodemograficas():
+    if 'encuestas_sociodemograficas' not in session.get('modulos_visibles', []):
+        abort(403)
+    return render_template('dashboard/encuestas_sociodemograficas.html')
+
+
+@bp.route('/dashboard/levantamiento/infraestructura')
+@login_required
+def infraestructura():
+    if 'infraestructura' not in session.get('modulos_visibles', []):
+        abort(403)
+    return render_template('dashboard/infraestructura.html')
+
+
+@bp.route('/dashboard/levantamiento/tss-nodos')
+@login_required
+def tss_nodos():
+    if 'tss_nodos' not in session.get('modulos_visibles', []):
+        abort(403)
+    return render_template('dashboard/tss_nodos.html')
+
+
+# ── Instalaciones (detalle) ────────────────────────────────
+
+@bp.route('/dashboard/instalaciones/enrutamiento')
+@login_required
+def enrutamiento():
+    if 'enrutamiento' not in session.get('modulos_visibles', []):
+        abort(403)
+    return render_template('dashboard/enrutamiento.html')
+
+
+@bp.route('/dashboard/instalaciones/tendido')
+@login_required
+def tendido():
+    if 'tendido' not in session.get('modulos_visibles', []):
+        abort(403)
+    return render_template('dashboard/tendido.html')
+
+
+@bp.route('/dashboard/instalaciones/empalme')
+@login_required
+def empalme():
+    if 'empalme' not in session.get('modulos_visibles', []):
+        abort(403)
+    return render_template('dashboard/empalme.html')
+
+
+@bp.route('/dashboard/instalaciones/ont')
+@login_required
+def instalaciones_ont():
+    if 'instalaciones_ont' not in session.get('modulos_visibles', []):
+        abort(403)
+    return render_template('dashboard/instalaciones_ont.html')
+
+
+@bp.route('/dashboard/instalaciones/nap')
+@login_required
+def instalaciones_nap():
+    if 'instalaciones_nap' not in session.get('modulos_visibles', []):
+        abort(403)
+    return render_template('dashboard/instalaciones_nap.html')

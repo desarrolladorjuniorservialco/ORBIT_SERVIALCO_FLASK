@@ -31,7 +31,11 @@ def login():
             session['refresh_token'] = 'dev-refresh'
             session['contratos_lista'] = [{'id': 'dev-contrato-id', 'nombre': 'Contrato Demo'}]
             session['contrato_activo_id'] = 'dev-contrato-id'
-            session['modulos_visibles'] = ['general', 'hitos', 'encuestas', 'instalaciones']
+            session['modulos_visibles'] = [
+                'general', 'hitos',
+                'encuestas_sociodemograficas', 'infraestructura', 'tss_nodos',
+                'enrutamiento', 'tendido', 'empalme', 'instalaciones_ont', 'instalaciones_nap',
+            ]
             return redirect(url_for('dashboard.general'))
         # ───────────────────────────────────────────────────────
 

@@ -49,26 +49,84 @@
     </nav>
     {% endif %}
 
-    {% if 'encuestas' in modulos_visibles %}
-    <nav class="sidebar__group" aria-label="Encuestas">
-      <div class="sidebar__group-label">Encuestas</div>
-      <a href="{{ url_for('dashboard.encuestas') }}"
-         class="sidebar__item {% if request.endpoint == 'dashboard.encuestas' %}is-active{% endif %}">
-        <span class="sidebar__icon" aria-hidden="true">📊</span>
-        Registros
-      </a>
-    </nav>
+    {% set _lev_eps = ['dashboard.encuestas_sociodemograficas', 'dashboard.infraestructura', 'dashboard.tss_nodos'] %}
+    {% if 'encuestas_sociodemograficas' in modulos_visibles or 'infraestructura' in modulos_visibles or 'tss_nodos' in modulos_visibles %}
+    <details class="sidebar__collapsible" {% if request.endpoint in _lev_eps %}open{% endif %}>
+      <summary class="sidebar__group-toggle" aria-label="Levantamiento">
+        <span class="sidebar__group-label-text">Levantamiento</span>
+        <span class="sidebar__chevron" aria-hidden="true">›</span>
+      </summary>
+      <nav class="sidebar__group-children" aria-label="Levantamiento">
+        {% if 'encuestas_sociodemograficas' in modulos_visibles %}
+        <a href="{{ url_for('dashboard.encuestas_sociodemograficas') }}"
+           class="sidebar__item sidebar__item--child {% if request.endpoint == 'dashboard.encuestas_sociodemograficas' %}is-active{% endif %}">
+          <span class="sidebar__icon" aria-hidden="true">📋</span>
+          Enc. Sociodemográficas
+        </a>
+        {% endif %}
+        {% if 'infraestructura' in modulos_visibles %}
+        <a href="{{ url_for('dashboard.infraestructura') }}"
+           class="sidebar__item sidebar__item--child {% if request.endpoint == 'dashboard.infraestructura' %}is-active{% endif %}">
+          <span class="sidebar__icon" aria-hidden="true">🏗️</span>
+          Infraestructura
+        </a>
+        {% endif %}
+        {% if 'tss_nodos' in modulos_visibles %}
+        <a href="{{ url_for('dashboard.tss_nodos') }}"
+           class="sidebar__item sidebar__item--child {% if request.endpoint == 'dashboard.tss_nodos' %}is-active{% endif %}">
+          <span class="sidebar__icon" aria-hidden="true">📡</span>
+          TSS Nodos
+        </a>
+        {% endif %}
+      </nav>
+    </details>
     {% endif %}
 
-    {% if 'instalaciones' in modulos_visibles %}
-    <nav class="sidebar__group" aria-label="Instalaciones">
-      <div class="sidebar__group-label">Instalaciones</div>
-      <a href="{{ url_for('dashboard.instalaciones') }}"
-         class="sidebar__item {% if request.endpoint == 'dashboard.instalaciones' %}is-active{% endif %}">
-        <span class="sidebar__icon" aria-hidden="true">🔧</span>
-        Registros
-      </a>
-    </nav>
+    {% set _inst_eps = ['dashboard.enrutamiento', 'dashboard.tendido', 'dashboard.empalme', 'dashboard.instalaciones_ont', 'dashboard.instalaciones_nap'] %}
+    {% if 'enrutamiento' in modulos_visibles or 'tendido' in modulos_visibles or 'empalme' in modulos_visibles or 'instalaciones_ont' in modulos_visibles or 'instalaciones_nap' in modulos_visibles %}
+    <details class="sidebar__collapsible" {% if request.endpoint in _inst_eps %}open{% endif %}>
+      <summary class="sidebar__group-toggle" aria-label="Instalaciones">
+        <span class="sidebar__group-label-text">Instalaciones</span>
+        <span class="sidebar__chevron" aria-hidden="true">›</span>
+      </summary>
+      <nav class="sidebar__group-children" aria-label="Instalaciones">
+        {% if 'enrutamiento' in modulos_visibles %}
+        <a href="{{ url_for('dashboard.enrutamiento') }}"
+           class="sidebar__item sidebar__item--child {% if request.endpoint == 'dashboard.enrutamiento' %}is-active{% endif %}">
+          <span class="sidebar__icon" aria-hidden="true">🗺️</span>
+          Enrutamiento
+        </a>
+        {% endif %}
+        {% if 'tendido' in modulos_visibles %}
+        <a href="{{ url_for('dashboard.tendido') }}"
+           class="sidebar__item sidebar__item--child {% if request.endpoint == 'dashboard.tendido' %}is-active{% endif %}">
+          <span class="sidebar__icon" aria-hidden="true">🔌</span>
+          Tendido
+        </a>
+        {% endif %}
+        {% if 'empalme' in modulos_visibles %}
+        <a href="{{ url_for('dashboard.empalme') }}"
+           class="sidebar__item sidebar__item--child {% if request.endpoint == 'dashboard.empalme' %}is-active{% endif %}">
+          <span class="sidebar__icon" aria-hidden="true">🔗</span>
+          Empalme
+        </a>
+        {% endif %}
+        {% if 'instalaciones_ont' in modulos_visibles %}
+        <a href="{{ url_for('dashboard.instalaciones_ont') }}"
+           class="sidebar__item sidebar__item--child {% if request.endpoint == 'dashboard.instalaciones_ont' %}is-active{% endif %}">
+          <span class="sidebar__icon" aria-hidden="true">📶</span>
+          Instalaciones ONT
+        </a>
+        {% endif %}
+        {% if 'instalaciones_nap' in modulos_visibles %}
+        <a href="{{ url_for('dashboard.instalaciones_nap') }}"
+           class="sidebar__item sidebar__item--child {% if request.endpoint == 'dashboard.instalaciones_nap' %}is-active{% endif %}">
+          <span class="sidebar__icon" aria-hidden="true">📦</span>
+          Instalaciones NAP
+        </a>
+        {% endif %}
+      </nav>
+    </details>
     {% endif %}
 
   </aside>
