@@ -13,7 +13,21 @@ TEST_CONFIG = {
 
 @pytest.fixture
 def app():
-    return create_app(TEST_CONFIG)
+    _app = create_app(TEST_CONFIG)
+
+    # Stub dashboard blueprint — evita BuildError en tests de auth/api cuando
+    # el blueprint real aún no está registrado
+    if 'dashboard' not in _app.blueprints:
+        from flask import Blueprint
+        dash_bp = Blueprint('dashboard', __name__)
+
+        @dash_bp.route('/dashboard/general')
+        def general():
+            return 'general'
+
+        _app.register_blueprint(dash_bp)
+
+    return _app
 
 
 @pytest.fixture
