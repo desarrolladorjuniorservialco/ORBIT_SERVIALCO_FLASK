@@ -8,6 +8,8 @@ def get_encuestas(
     filtros: dict | None = None,
 ) -> tuple[list[dict], int]:
     client = get_data_client()
+    if client is None:
+        return [], 0
     offset = (page - 1) * per_page
 
     query = (
@@ -27,5 +29,7 @@ def get_encuestas(
 
 def delete_encuesta(encuesta_id: str) -> bool:
     client = get_data_client()
+    if client is None:
+        return False
     resp = client.table('encuestas').delete().eq('id', encuesta_id).execute()
     return bool(resp.data)

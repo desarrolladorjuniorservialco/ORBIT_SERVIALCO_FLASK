@@ -15,17 +15,23 @@ def _require_env(*names: str) -> list[str]:
     return [os.environ[n] for n in names]
 
 
-def get_auth_client() -> Client:
+def get_auth_client() -> Client | None:
     global _auth_client
     if _auth_client is None:
-        url, anon_key = _require_env('SUPABASE_URL', 'SUPABASE_ANON_KEY')
+        url = os.environ.get('SUPABASE_URL')
+        anon_key = os.environ.get('SUPABASE_ANON_KEY')
+        if not url or not anon_key:
+            return None
         _auth_client = create_client(url, anon_key)
     return _auth_client
 
 
-def get_data_client() -> Client:
+def get_data_client() -> Client | None:
     global _data_client
     if _data_client is None:
-        url, service_key = _require_env('SUPABASE_URL', 'SUPABASE_SERVICE_KEY')
+        url = os.environ.get('SUPABASE_URL')
+        service_key = os.environ.get('SUPABASE_SERVICE_KEY')
+        if not url or not service_key:
+            return None
         _data_client = create_client(url, service_key)
     return _data_client

@@ -5,6 +5,8 @@ ESTADOS_VALIDOS = ('pendiente', 'en_revision', 'aprobado')
 
 def get_hitos(contrato_id: str) -> list[dict]:
     client = get_data_client()
+    if client is None:
+        return []
     resp = (
         client.table('hitos')
         .select('id, nombre, descripcion, fecha_limite, estado, archivo_url')
@@ -19,6 +21,8 @@ def update_estado_hito(hito_id: str, estado: str) -> dict:
     if estado not in ESTADOS_VALIDOS:
         raise ValueError(f'Estado inválido: {estado}. Valores permitidos: {ESTADOS_VALIDOS}')
     client = get_data_client()
+    if client is None:
+        return {}
     resp = (
         client.table('hitos')
         .update({'estado': estado})

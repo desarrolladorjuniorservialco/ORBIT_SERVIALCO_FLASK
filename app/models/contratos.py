@@ -4,6 +4,8 @@ from app.utils.supabase_client import get_data_client
 
 def get_contrato(contrato_id: str) -> dict | None:
     client = get_data_client()
+    if client is None:
+        return None
     resp = (
         client.table('contratos')
         .select('*')
@@ -32,6 +34,8 @@ def calcular_progreso_tiempo(
 
 def update_porcentaje_ejecutado(contrato_id: str, porcentaje: float) -> dict:
     client = get_data_client()
+    if client is None:
+        return {}
     resp = (
         client.table('contratos')
         .update({'porcentaje_ejecutado': porcentaje})

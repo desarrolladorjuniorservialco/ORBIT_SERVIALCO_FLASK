@@ -9,6 +9,8 @@ def get_comentarios(
     referencia_id: str | None = None,
 ) -> list[dict]:
     client = get_data_client()
+    if client is None:
+        return []
     query = (
         client.table('comentarios')
         .select('id, contenido, tipo, referencia_id, created_at, usuarios(nombre_completo)')
@@ -34,6 +36,8 @@ def create_comentario(
     if tipo not in TIPOS_VALIDOS:
         raise ValueError(f'Tipo inválido: {tipo}. Permitidos: {TIPOS_VALIDOS}')
     client = get_data_client()
+    if client is None:
+        return {}
     payload = {
         'contrato_id': contrato_id,
         'autor_id': autor_id,
