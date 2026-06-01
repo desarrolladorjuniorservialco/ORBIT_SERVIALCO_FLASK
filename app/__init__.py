@@ -18,6 +18,9 @@ def create_app(config_object=None):
     from app.dashboard import bp as dashboard_bp
     app.register_blueprint(dashboard_bp)
 
+    from app.api import bp as api_bp
+    app.register_blueprint(api_bp)
+
     # ── Ruta raíz ──────────────────────────────────────────
     from flask import session, redirect, url_for
 

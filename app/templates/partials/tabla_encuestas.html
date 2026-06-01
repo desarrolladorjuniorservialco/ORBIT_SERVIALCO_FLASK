@@ -1,0 +1,79 @@
+{% if rows %}
+
+{% set excluded_keys = ['id', 'contrato_id', 'created_at'] %}
+
+<table>
+  <thead>
+    <tr>
+      {% for key in rows[0].keys() %}
+        {% if key not in excluded_keys %}
+        <th>{{ key | replace('_', ' ') | title }}</th>
+        {% endif %}
+      {% endfor %}
+      <th style="width:100px;">Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in rows %}
+    <tr id="row-enc-{{ row.id }}">
+      {% for key, val in row.items() %}
+        {% if key not in excluded_keys %}
+        <td>{{ val if val is not none else '—' }}</td>
+        {% endif %}
+      {% endfor %}
+      <td>
+        <div style="display:flex;gap:.25rem;">
+          <button class="btn btn--ghost btn--sm"
+                  title="Ver comentarios"
+                  hx-get="/api/comentarios?tipo=encuesta&ref={{ row.id }}"
+                  hx-target="#comments-panel-content"
+                  hx-swap="innerHTML"
+                  hx-on::after-request="document.getElementById('comments-section').style.display=''">
+            💬
+          </button>
+          {% if current_user_rol == 'administrador' %}
+          <button class="btn btn--danger btn--sm"
+                  title="Eliminar registro"
+                  hx-delete="/api/encuestas/{{ row.id }}"
+                  hx-target="#row-enc-{{ row.id }}"
+                  hx-swap="outerHTML"
+                  hx-confirm="¿Eliminar este registro permanentemente?">
+            🗑
+          </button>
+          {% endif %}
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="pagination">
+  <span>{{ total }} registros · Página {{ page }} de {{ total_pages }}</span>
+  <div class="pagination__controls">
+    {% if page > 1 %}
+    <button class="btn btn--ghost btn--sm"
+            hx-get="/api/encuestas?page={{ page - 1 }}"
+            hx-target="#tabla-encuestas-wrap"
+            hx-swap="innerHTML"
+            hx-include="#filtros-encuestas">
+      ‹ Anterior
+    </button>
+    {% endif %}
+    {% if page < total_pages %}
+    <button class="btn btn--ghost btn--sm"
+            hx-get="/api/encuestas?page={{ page + 1 }}"
+            hx-target="#tabla-encuestas-wrap"
+            hx-swap="innerHTML"
+            hx-include="#filtros-encuestas">
+      Siguiente ›
+    </button>
+    {% endif %}
+  </div>
+</div>
+
+{% else %}
+<div style="padding:3rem;text-align:center;color:var(--color-text-muted);">
+  No se encontraron registros para los filtros seleccionados.
+</div>
+{% endif %}

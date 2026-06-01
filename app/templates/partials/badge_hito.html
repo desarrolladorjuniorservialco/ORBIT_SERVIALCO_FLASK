@@ -1,0 +1,4 @@
+<span id="badge-hito-{{ hito_id }}"
+      class="badge badge--{{ 'success' if estado == 'aprobado' else ('warning' if estado == 'en_revision' else 'neutral') }}">
+  {{ {'pendiente': 'Pendiente', 'en_revision': 'En revisión', 'aprobado': 'Aprobado'}.get(estado, estado) }}
+</span>

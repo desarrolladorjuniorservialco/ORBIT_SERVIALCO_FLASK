@@ -1,0 +1,37 @@
+<div class="comments-panel">
+
+  {% if comentarios %}
+    {% for c in comentarios %}
+    <div class="comment-item">
+      <div class="comment-item__meta">
+        <span class="comment-item__author">
+          {{ c.usuarios.nombre_completo if c.get('usuarios') else 'Usuario' }}
+        </span>
+        <span>·</span>
+        <span>{{ (c.created_at or '')[:10] }}</span>
+      </div>
+      <div class="comment-item__body">{{ c.contenido }}</div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <p class="text-muted text-sm" style="padding:.5rem 0 1rem;">
+      Sin comentarios aún.
+    </p>
+  {% endif %}
+
+  {% if current_user_rol != 'operativo' %}
+  <form class="comment-form"
+        hx-post="/api/comentarios"
+        hx-target="#comments-panel-content"
+        hx-swap="innerHTML">
+    <input type="hidden" name="tipo" value="{{ tipo }}">
+    <input type="hidden" name="referencia_id" value="{{ referencia_id or '' }}">
+    <textarea name="contenido"
+              placeholder="Escribe un comentario…"
+              rows="2"
+              required></textarea>
+    <button type="submit" class="btn btn--primary btn--sm">Enviar</button>
+  </form>
+  {% endif %}
+
+</div>
