@@ -56,27 +56,33 @@ def get_mf_bd(contrato_id: str) -> list[dict]:
     client = get_data_client()
     if client is None:
         return []
-    resp = (
-        client.table('mf_bd')
-        .select('id_municipio, municipio_descripcion, mf_tipo, mf_codigo, meta_fisica_prog, meta_fisica_ejec')
-        .eq('contrato_id', contrato_id)
-        .order('id_municipio')
-        .execute()
-    )
-    return resp.data or []
+    try:
+        resp = (
+            client.table('mf_bd')
+            .select('id_municipio, municipio_descripcion, mf_tipo, mf_codigo, meta_fisica_prog, meta_fisica_ejec')
+            .eq('contrato_id', contrato_id)
+            .order('id_municipio')
+            .execute()
+        )
+        return resp.data or []
+    except Exception:
+        return []
 
 
 def get_mf_aux(contrato_id: str) -> list[dict]:
     client = get_data_client()
     if client is None:
         return []
-    resp = (
-        client.table('mf_aux')
-        .select('codigo, descripcion')
-        .eq('contrato_id', contrato_id)
-        .execute()
-    )
-    return resp.data or []
+    try:
+        resp = (
+            client.table('mf_aux')
+            .select('codigo, descripcion')
+            .eq('contrato_id', contrato_id)
+            .execute()
+        )
+        return resp.data or []
+    except Exception:
+        return []
 
 
 def build_municipios(mf_bd_raw: list[dict]) -> list[dict]:
