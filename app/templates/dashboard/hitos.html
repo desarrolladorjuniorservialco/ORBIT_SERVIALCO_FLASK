@@ -41,7 +41,7 @@
         <td>
           {% if hito.archivo_url %}
           <a href="{{ hito.archivo_url }}" target="_blank" rel="noopener" class="btn btn--ghost btn--sm">
-            📎 Ver
+            <i data-lucide="paperclip" aria-hidden="true"></i> Ver
           </a>
           {% else %}
           <span class="text-muted text-sm">—</span>
@@ -68,7 +68,7 @@
                   hx-target="#comments-panel-content"
                   hx-swap="innerHTML"
                   hx-on::after-request="document.getElementById('comments-section').style.display=''">
-            💬
+            <i data-lucide="message-circle" aria-hidden="true"></i>
           </button>
         </td>
       </tr>
@@ -87,7 +87,7 @@
     <h3 style="font-size:var(--text-base);font-weight:600;">Comentarios del hito</h3>
     <button class="btn btn--ghost btn--sm"
             onclick="document.getElementById('comments-section').style.display='none'">
-      ✕ Cerrar
+      <i data-lucide="x" aria-hidden="true"></i> Cerrar
     </button>
   </div>
   <div id="comments-panel-content"></div>

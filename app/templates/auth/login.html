@@ -7,6 +7,8 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/desktop.css') }}" media="(min-width: 768px)">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}" media="(max-width: 767px)">
+  <script src="https://unpkg.com/lucide@latest" defer></script>
+  <script defer>document.addEventListener('DOMContentLoaded', () => { if (window.lucide) lucide.createIcons(); });</script>
 </head>
 <body class="login-page">
 
@@ -16,7 +18,7 @@
     <div class="login-hero" aria-hidden="true">
       <div class="login-hero__overlay">
         <div class="login-hero__brand">
-          <span class="login-hero__logo-mark">⬡</span>
+          <i data-lucide="hexagon" class="login-hero__logo-mark" aria-hidden="true"></i>
           <span class="login-hero__brand-name">ORBIT SERVIALCO</span>
         </div>
         <p class="login-hero__tagline">

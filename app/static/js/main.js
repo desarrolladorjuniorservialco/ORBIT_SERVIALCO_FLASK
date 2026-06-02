@@ -1,5 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+  // ── Lucide icons ───────────────────────────────────────
+  if (window.lucide) {
+    lucide.createIcons();
+    document.body.addEventListener('htmx:afterSettle', () => lucide.createIcons());
+  }
+
   // ── Dark mode ──────────────────────────────────────────
   const html = document.documentElement;
   const savedTheme = localStorage.getItem('orbit-theme') || 'light';

@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/desktop.css') }}" media="(min-width: 768px)">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}" media="(max-width: 767px)">
   <script src="https://unpkg.com/htmx.org@2.0.3" defer></script>
+  <script src="https://unpkg.com/lucide@latest" defer></script>
   <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
 </head>
 <body>
@@ -20,7 +21,7 @@
   <aside id="sidebar" class="sidebar" aria-label="Navegación principal">
 
     <div class="sidebar__brand">
-      <span class="sidebar__logo" aria-hidden="true">⬡</span>
+      <i data-lucide="hexagon" class="sidebar__logo" aria-hidden="true"></i>
       <div>
         <div class="sidebar__name">ORBIT</div>
         <div class="sidebar__sub">SERVIALCO</div>
@@ -34,7 +35,7 @@
       {% if 'general' in modulos_visibles %}
       <a href="{{ url_for('dashboard.general') }}"
          class="sidebar__item {% if request.endpoint == 'dashboard.general' %}is-active{% endif %}">
-        <span class="sidebar__icon" aria-hidden="true">📋</span>
+        <i data-lucide="file-text" class="sidebar__icon" aria-hidden="true"></i>
         Datos del Contrato
       </a>
       {% endif %}
@@ -42,7 +43,7 @@
       {% if 'hitos' in modulos_visibles %}
       <a href="{{ url_for('dashboard.hitos') }}"
          class="sidebar__item {% if request.endpoint == 'dashboard.hitos' %}is-active{% endif %}">
-        <span class="sidebar__icon" aria-hidden="true">🏁</span>
+        <i data-lucide="flag" class="sidebar__icon" aria-hidden="true"></i>
         Hitos
       </a>
       {% endif %}
@@ -60,21 +61,21 @@
         {% if 'encuestas_sociodemograficas' in modulos_visibles %}
         <a href="{{ url_for('dashboard.encuestas_sociodemograficas') }}"
            class="sidebar__item sidebar__item--child {% if request.endpoint == 'dashboard.encuestas_sociodemograficas' %}is-active{% endif %}">
-          <span class="sidebar__icon" aria-hidden="true">📋</span>
+          <i data-lucide="users" class="sidebar__icon" aria-hidden="true"></i>
           Enc. Sociodemográficas
         </a>
         {% endif %}
         {% if 'infraestructura' in modulos_visibles %}
         <a href="{{ url_for('dashboard.infraestructura') }}"
            class="sidebar__item sidebar__item--child {% if request.endpoint == 'dashboard.infraestructura' %}is-active{% endif %}">
-          <span class="sidebar__icon" aria-hidden="true">🏗️</span>
+          <i data-lucide="layers" class="sidebar__icon" aria-hidden="true"></i>
           Infraestructura
         </a>
         {% endif %}
         {% if 'tss_nodos' in modulos_visibles %}
         <a href="{{ url_for('dashboard.tss_nodos') }}"
            class="sidebar__item sidebar__item--child {% if request.endpoint == 'dashboard.tss_nodos' %}is-active{% endif %}">
-          <span class="sidebar__icon" aria-hidden="true">📡</span>
+          <i data-lucide="radio" class="sidebar__icon" aria-hidden="true"></i>
           TSS Nodos
         </a>
         {% endif %}
@@ -93,35 +94,35 @@
         {% if 'enrutamiento' in modulos_visibles %}
         <a href="{{ url_for('dashboard.enrutamiento') }}"
            class="sidebar__item sidebar__item--child {% if request.endpoint == 'dashboard.enrutamiento' %}is-active{% endif %}">
-          <span class="sidebar__icon" aria-hidden="true">🗺️</span>
+          <i data-lucide="map" class="sidebar__icon" aria-hidden="true"></i>
           Enrutamiento
         </a>
         {% endif %}
         {% if 'tendido' in modulos_visibles %}
         <a href="{{ url_for('dashboard.tendido') }}"
            class="sidebar__item sidebar__item--child {% if request.endpoint == 'dashboard.tendido' %}is-active{% endif %}">
-          <span class="sidebar__icon" aria-hidden="true">🔌</span>
+          <i data-lucide="plug" class="sidebar__icon" aria-hidden="true"></i>
           Tendido
         </a>
         {% endif %}
         {% if 'empalme' in modulos_visibles %}
         <a href="{{ url_for('dashboard.empalme') }}"
            class="sidebar__item sidebar__item--child {% if request.endpoint == 'dashboard.empalme' %}is-active{% endif %}">
-          <span class="sidebar__icon" aria-hidden="true">🔗</span>
+          <i data-lucide="link-2" class="sidebar__icon" aria-hidden="true"></i>
           Empalme
         </a>
         {% endif %}
         {% if 'instalaciones_ont' in modulos_visibles %}
         <a href="{{ url_for('dashboard.instalaciones_ont') }}"
            class="sidebar__item sidebar__item--child {% if request.endpoint == 'dashboard.instalaciones_ont' %}is-active{% endif %}">
-          <span class="sidebar__icon" aria-hidden="true">📶</span>
+          <i data-lucide="wifi" class="sidebar__icon" aria-hidden="true"></i>
           Instalaciones ONT
         </a>
         {% endif %}
         {% if 'instalaciones_nap' in modulos_visibles %}
         <a href="{{ url_for('dashboard.instalaciones_nap') }}"
            class="sidebar__item sidebar__item--child {% if request.endpoint == 'dashboard.instalaciones_nap' %}is-active{% endif %}">
-          <span class="sidebar__icon" aria-hidden="true">📦</span>
+          <i data-lucide="package" class="sidebar__icon" aria-hidden="true"></i>
           Instalaciones NAP
         </a>
         {% endif %}
@@ -136,7 +137,7 @@
 
     <header class="topbar" role="banner">
 
-      <button id="hamburger" class="hamburger" aria-label="Abrir menú" aria-expanded="false">☰</button>
+      <button id="hamburger" class="hamburger" aria-label="Abrir menú" aria-expanded="false"><i data-lucide="menu" aria-hidden="true"></i></button>
 
       <div class="topbar__left">
         {% if contratos_lista %}
@@ -168,7 +169,8 @@
                 class="theme-toggle"
                 aria-label="Cambiar a modo oscuro"
                 title="Alternar modo oscuro">
-          🌙
+          <i data-lucide="moon" class="theme-icon--moon" aria-hidden="true"></i>
+          <i data-lucide="sun"  class="theme-icon--sun"  aria-hidden="true"></i>
         </button>
 
         <div class="user-menu">
@@ -180,7 +182,7 @@
               {{ (current_user_nombre or 'U')[:1].upper() }}
             </div>
             <span class="user-menu__name">{{ current_user_nombre }}</span>
-            <span aria-hidden="true">▾</span>
+            <i data-lucide="chevron-down" aria-hidden="true"></i>
           </button>
 
           <div id="user-menu-dropdown" class="user-menu__dropdown" role="menu">
@@ -193,7 +195,7 @@
                     class="user-menu__dropdown-item"
                     role="menuitem"
                     type="button">
-              🔑 Cambiar contraseña
+              <i data-lucide="key-round" aria-hidden="true"></i> Cambiar contraseña
             </button>
 
             <div class="user-menu__dropdown-divider"></div>
@@ -202,7 +204,7 @@
               <button type="submit"
                       class="user-menu__dropdown-item user-menu__dropdown-item--danger"
                       role="menuitem">
-                🚪 Cerrar sesión
+                <i data-lucide="log-out" aria-hidden="true"></i> Cerrar sesión
               </button>
             </form>
           </div>
@@ -236,7 +238,7 @@
   <div class="modal">
     <div class="modal__header">
       <h2 id="modal-password-title" class="modal__title">Cambiar contraseña</h2>
-      <button id="modal-password-close" class="modal__close" aria-label="Cerrar">✕</button>
+      <button id="modal-password-close" class="modal__close" aria-label="Cerrar"><i data-lucide="x" aria-hidden="true"></i></button>
     </div>
 
     <form method="POST" action="{{ url_for('auth.cambiar_contrasena') }}">

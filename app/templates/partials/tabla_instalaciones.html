@@ -29,7 +29,7 @@
                   hx-target="#comments-panel-content"
                   hx-swap="innerHTML"
                   hx-on::after-request="document.getElementById('comments-section').style.display=''">
-            💬
+            <i data-lucide="message-circle" aria-hidden="true"></i>
           </button>
           {% if current_user_rol == 'administrador' %}
           <button class="btn btn--danger btn--sm"
@@ -38,7 +38,7 @@
                   hx-target="#row-inst-{{ row.id }}"
                   hx-swap="outerHTML"
                   hx-confirm="¿Eliminar este registro permanentemente?">
-            🗑
+            <i data-lucide="trash-2" aria-hidden="true"></i>
           </button>
           {% endif %}
         </div>
