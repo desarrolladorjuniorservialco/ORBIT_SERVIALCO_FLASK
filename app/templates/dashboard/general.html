@@ -35,7 +35,14 @@
   <div class="progress-wrap">
     <div class="progress-wrap__header">
       <span style="font-weight:600;">Avance de tiempo</span>
-      <span style="font-size:var(--text-lg); font-weight:700; color:var(--color-{{ progreso_tiempo|progress_color }});">
+      {% set _pcolor = progreso_tiempo|progress_color %}
+      {% if _pcolor == 'success' %}
+      <span style="font-size:var(--text-lg); font-weight:700; color:var(--color-success);">
+      {% elif _pcolor == 'warning' %}
+      <span style="font-size:var(--text-lg); font-weight:700; color:var(--color-warning);">
+      {% else %}
+      <span style="font-size:var(--text-lg); font-weight:700; color:var(--color-danger);">
+      {% endif %}
         {{ progreso_tiempo }}%
       </span>
     </div>
