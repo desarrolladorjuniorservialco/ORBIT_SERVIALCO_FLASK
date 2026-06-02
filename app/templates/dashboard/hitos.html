@@ -1,96 +1,655 @@
 {% extends 'base.html' %}
 
-{% block title %}Hitos — ORBIT SERVIALCO{% endblock %}
-{% block breadcrumb %}Hitos{% endblock %}
+{% block title %}Hitos del Proyecto — ORBIT SERVIALCO{% endblock %}
+{% block breadcrumb %}Hitos del Proyecto{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  /* ── Mapa ─────────────────────────────────────────────────── */
+  .map-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+  }
+  .map-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .map-toolbar__title {
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--color-text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .map-toolbar__count {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    margin-top: 0.125rem;
+  }
+  .map-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  .map-controls .form-select {
+    width: auto;
+    padding: 0.3rem 0.625rem;
+    font-size: var(--text-xs);
+    height: auto;
+  }
+
+  /* ── Layer toggles ────────────────────────────────────────── */
+  .layer-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    padding: 0.625rem 1.25rem;
+    background: var(--color-surface-2);
+    border-bottom: 1px solid var(--color-border);
+    min-height: 2.5rem;
+  }
+  .layer-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.2rem 0.625rem;
+    border-radius: 99px;
+    border: 1.5px solid var(--color-border);
+    background: var(--color-surface);
+    cursor: pointer;
+    font-size: var(--text-xs);
+    font-weight: 500;
+    color: var(--color-text);
+    user-select: none;
+    transition: opacity 150ms ease, background-color 150ms ease;
+    white-space: nowrap;
+  }
+  .layer-toggle:hover { background: var(--color-primary-light); }
+  .layer-toggle input[type="checkbox"] { display: none; }
+  .layer-toggle__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .layer-toggle.is-off { opacity: 0.38; }
+
+  /* ── Mapa contenedor ──────────────────────────────────────── */
+  #mapa-reportes { height: 460px; width: 100%; }
+  .map-empty {
+    height: 460px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    background: var(--color-surface-2);
+  }
+
+  /* ── Meta física: tabla expandible ───────────────────────── */
+  .mf-row-header { cursor: pointer; }
+  .mf-row-header:hover td { background: var(--color-primary-light); }
+  .mf-row-header td { transition: background-color 150ms ease; }
+  .mf-detail-row td { background: var(--color-surface-2); }
+  .mf-detail-row:hover td { background: var(--color-primary-light); }
+
+  .mf-chevron {
+    display: inline-flex;
+    transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
+    color: var(--color-text-muted);
+  }
+  .mf-chevron svg { width: 0.875rem; height: 0.875rem; }
+  .mf-chevron.is-open { transform: rotate(90deg); }
+
+  /* ── KPI grid ─────────────────────────────────────────────── */
+  .kpi-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  @media (max-width: 640px) {
+    .kpi-grid-3 { grid-template-columns: 1fr; }
+  }
+
+  /* ── Botones: feedback táctil (Emil Kowalski) ─────────────── */
+  .btn { transition: background-color 150ms ease, border-color 150ms ease, opacity 150ms ease, transform 100ms ease; }
+  .btn:active { transform: scale(0.97); }
+  .layer-toggle:active { transform: scale(0.96); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mf-chevron,
+    .btn,
+    .layer-toggle { transition: none; }
+  }
+
+  /* ── Leaflet popup override ───────────────────────────────── */
+  .leaflet-popup-content-wrapper {
+    border-radius: var(--radius-md) !important;
+    box-shadow: var(--shadow-md) !important;
+    font-family: var(--font-sans) !important;
+    font-size: var(--text-xs) !important;
+  }
+  .leaflet-popup-content { margin: 0.75rem 1rem !important; }
+  .popup-tipo  { font-weight: 700; font-size: 0.8rem; color: var(--color-text); margin-bottom: 0.3rem; }
+  .popup-ref   { color: var(--color-text-muted); font-family: var(--font-mono); font-size: 0.7rem; }
+  .popup-meta  { color: var(--color-text-muted); font-size: 0.75rem; margin-top: 0.25rem; }
+  .popup-badge {
+    display: inline-block;
+    margin-top: 0.35rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 99px;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+</style>
+{% endblock %}
 
 {% block content %}
 
+<!-- ══ ENCABEZADO ══════════════════════════════════════════════ -->
 <div class="page-header">
-  <h1 class="page-header__title">Hitos del Contrato</h1>
-  <p class="page-header__sub">Entregables y su estado de aprobación</p>
+  <h1 class="page-header__title">Hitos del Proyecto</h1>
+  <p class="page-header__sub">Mapa de reportes, meta física y entregables del contrato</p>
 </div>
 
-<div class="table-wrap">
-  {% if hitos %}
-  <table>
-    <thead>
-      <tr>
-        <th>Nombre</th>
-        <th>Descripción</th>
-        <th>Fecha límite</th>
-        <th>Estado</th>
-        <th>Archivo</th>
-        {% if current_user_rol in ['administrador', 'supervision'] %}
-        <th>Cambiar estado</th>
-        {% endif %}
-        <th>Comentarios</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for hito in hitos %}
-      <tr>
-        <td style="font-weight:500;">{{ hito.nombre }}</td>
-        <td class="text-muted text-sm">{{ hito.descripcion or '—' }}</td>
-        <td>{{ hito.fecha_limite|date_col }}</td>
-        <td>
-          <span id="badge-hito-{{ hito.id }}"
-                class="badge badge--{{ 'success' if hito.estado == 'aprobado' else ('warning' if hito.estado == 'en_revision' else 'neutral') }}">
-            {{ {'pendiente':'Pendiente','en_revision':'En revisión','aprobado':'Aprobado'}.get(hito.estado, hito.estado) }}
-          </span>
-        </td>
-        <td>
-          {% if hito.archivo_url %}
-          <a href="{{ hito.archivo_url }}" target="_blank" rel="noopener" class="btn btn--ghost btn--sm">
-            <i data-lucide="paperclip" aria-hidden="true"></i> Ver
-          </a>
-          {% else %}
-          <span class="text-muted text-sm">—</span>
-          {% endif %}
-        </td>
-        {% if current_user_rol in ['administrador', 'supervision'] %}
-        <td>
-          <select class="form-select"
-                  style="width:auto;padding:.25rem .5rem;font-size:var(--text-xs);"
-                  hx-patch="/api/hitos/{{ hito.id }}/estado"
-                  hx-trigger="change"
-                  hx-target="#badge-hito-{{ hito.id }}"
-                  hx-swap="outerHTML"
-                  onclick="event.stopPropagation()">
-            <option value="pendiente"    {% if hito.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
-            <option value="en_revision"  {% if hito.estado == 'en_revision' %}selected{% endif %}>En revisión</option>
-            <option value="aprobado"     {% if hito.estado == 'aprobado' %}selected{% endif %}>Aprobado</option>
-          </select>
-        </td>
-        {% endif %}
-        <td>
-          <button class="btn btn--ghost btn--sm"
-                  hx-get="/api/comentarios?tipo=hito&ref={{ hito.id }}&contrato_id={{ contrato_activo_id }}"
-                  hx-target="#comments-panel-content"
-                  hx-swap="innerHTML"
-                  hx-on::after-request="document.getElementById('comments-section').style.display=''">
-            <i data-lucide="message-circle" aria-hidden="true"></i>
-          </button>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<!-- ══ 1. MAPA DE REPORTES ════════════════════════════════════ -->
+<div class="map-card">
+
+  <!-- Toolbar -->
+  <div class="map-toolbar">
+    <div>
+      <div class="map-toolbar__title">
+        <i data-lucide="map-pin" style="width:1rem;height:1rem;" aria-hidden="true"></i>
+        Mapa de Reportes
+      </div>
+      <div class="map-toolbar__count">
+        <span id="map-count">cargando…</span> registros con coordenadas
+      </div>
+    </div>
+
+    <div class="map-controls">
+      <select id="filter-estado" class="form-select" aria-label="Filtrar por estado">
+        <option value="">Todos los estados</option>
+        <option value="BORRADOR">Borrador</option>
+        <option value="REVISADO">Revisado</option>
+        <option value="APROBADO">Aprobado</option>
+      </select>
+
+      <select id="filter-municipio" class="form-select" aria-label="Filtrar por municipio">
+        <option value="">Todos los municipios</option>
+      </select>
+
+      <button id="map-reset" class="btn btn--ghost btn--sm" type="button" title="Restablecer filtros">
+        <i data-lucide="rotate-ccw" aria-hidden="true"></i> Restablecer
+      </button>
+    </div>
+  </div>
+
+  <!-- Layer toggles (populated by JS) -->
+  <div id="layer-bar" class="layer-bar" aria-label="Capas del mapa"></div>
+
+  <!-- Map -->
+  <div id="mapa-reportes" role="img" aria-label="Mapa de reportes del proyecto"></div>
+
+</div>
+
+
+<!-- ══ 2. META FÍSICA ═════════════════════════════════════════ -->
+<div class="card" style="margin-bottom:1.5rem;">
+
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.5rem;">
+    <div>
+      <h2 style="font-size:var(--text-base); font-weight:700; color:var(--color-text); display:flex; align-items:center; gap:0.5rem;">
+        <i data-lucide="bar-chart-2" style="width:1rem;height:1rem;" aria-hidden="true"></i>
+        Meta Física del Proyecto
+      </h2>
+      <p style="font-size:var(--text-xs); color:var(--color-text-muted); margin-top:0.2rem;">
+        Avance programado vs. ejecutado por municipio
+      </p>
+    </div>
+    {% if municipios %}
+    <span class="badge badge--neutral">
+      {{ municipios|length }} municipio{% if municipios|length != 1 %}s{% endif %}
+    </span>
+    {% endif %}
+  </div>
+
+  {% if not municipios %}
+  <div style="padding:2.5rem; text-align:center; color:var(--color-text-muted);">
+    <i data-lucide="inbox" style="width:2rem;height:2rem; margin:0 auto 0.75rem; display:block; opacity:.4;" aria-hidden="true"></i>
+    No hay datos de meta física registrados para este contrato.
+  </div>
+
   {% else %}
-  <div style="padding:3rem;text-align:center;color:var(--color-text-muted);">
+
+  {% set total_prog  = namespace(v=0) %}
+  {% set total_ejec  = namespace(v=0) %}
+  {% for m in municipios %}
+    {% set total_prog.v = total_prog.v + m.total_prog %}
+    {% set total_ejec.v = total_ejec.v + m.total_ejec %}
+  {% endfor %}
+  {% set total_avance = ((total_ejec.v / total_prog.v * 100) if total_prog.v > 0 else 0)|round(1) %}
+
+  <!-- KPI resumen -->
+  <div class="kpi-grid-3">
+    <div class="kpi-card">
+      <div class="kpi-card__label">Meta total prog.</div>
+      <div class="kpi-card__value">{{ '{:,.1f}'.format(total_prog.v) }}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card__label">Ejecutado</div>
+      <div class="kpi-card__value">{{ '{:,.1f}'.format(total_ejec.v) }}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card__label">Avance general</div>
+      {% if total_avance >= 80 %}
+        <div class="kpi-card__value" style="color:var(--color-success);">{{ total_avance }}%</div>
+      {% elif total_avance >= 50 %}
+        <div class="kpi-card__value" style="color:var(--color-warning);">{{ total_avance }}%</div>
+      {% else %}
+        <div class="kpi-card__value" style="color:var(--color-danger);">{{ total_avance }}%</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Tabla expandible por municipio -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:2rem; padding-right:0;"></th>
+          <th>Municipio</th>
+          <th style="text-align:right;">Meta prog.</th>
+          <th style="text-align:right;">Ejecutado</th>
+          <th style="min-width:160px;">Avance</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in municipios %}
+
+        <!-- Fila municipio -->
+        <tr class="mf-row-header"
+            onclick="toggleMfRow('m{{ m.id }}')"
+            aria-expanded="false"
+            role="button">
+          <td style="padding-right:0; width:2rem;">
+            <span class="mf-chevron" id="chevron-m{{ m.id }}" aria-hidden="true">
+              <i data-lucide="chevron-right"></i>
+            </span>
+          </td>
+          <td style="font-weight:600;">{{ m.nombre }}</td>
+          <td style="text-align:right; font-variant-numeric:tabular-nums;">
+            {{ '{:,.1f}'.format(m.total_prog) }}
+          </td>
+          <td style="text-align:right; font-variant-numeric:tabular-nums;">
+            {{ '{:,.1f}'.format(m.total_ejec) }}
+          </td>
+          <td>
+            <div style="display:flex; align-items:center; gap:0.625rem;">
+              <div class="progress-track" style="flex:1; min-width:80px;">
+                <div class="progress-bar progress-bar--{{ 'success' if m.total_avance >= 80 else ('warning' if m.total_avance >= 50 else 'danger') }}"
+                     style="width:{{ m.total_avance }}%;"></div>
+              </div>
+              <span style="font-size:var(--text-xs); font-weight:600; min-width:2.5rem; text-align:right; font-variant-numeric:tabular-nums;">
+                {{ m.total_avance }}%
+              </span>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Filas de detalle por tipo MF (ocultas por defecto) -->
+        {% for tipo in m.tipos %}
+        <tr class="mf-detail-row mf-detail--m{{ m.id }}" style="display:none;">
+          <td></td>
+          <td>
+            <div style="display:flex; align-items:center; gap:0.5rem; padding-left:0.5rem;">
+              <span class="badge badge--neutral" style="font-family:var(--font-mono); font-size:0.68rem;">
+                {{ tipo.mf_tipo }}
+              </span>
+              {% set desc = mf_aux.get(tipo.mf_tipo) or mf_aux.get(tipo.mf_codigo) %}
+              {% if desc %}
+              <span style="font-size:var(--text-xs); color:var(--color-text-muted);">{{ desc }}</span>
+              {% endif %}
+            </div>
+          </td>
+          <td style="text-align:right; font-size:var(--text-sm); font-variant-numeric:tabular-nums;">
+            {{ '{:,.1f}'.format(tipo.prog) }}
+          </td>
+          <td style="text-align:right; font-size:var(--text-sm); font-variant-numeric:tabular-nums;">
+            {{ '{:,.1f}'.format(tipo.ejec) }}
+          </td>
+          <td>
+            <div style="display:flex; align-items:center; gap:0.625rem;">
+              <div class="progress-track" style="flex:1; min-width:80px; height:6px;">
+                <div class="progress-bar progress-bar--{{ 'success' if tipo.avance >= 80 else ('warning' if tipo.avance >= 50 else 'danger') }}"
+                     style="width:{{ tipo.avance }}%;"></div>
+              </div>
+              <span style="font-size:var(--text-xs); font-weight:600; min-width:2.5rem; text-align:right; font-variant-numeric:tabular-nums;">
+                {{ tipo.avance }}%
+              </span>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+</div>
+
+
+<!-- ══ 3. HITOS DEL CONTRATO ══════════════════════════════════ -->
+<div class="card">
+
+  <h2 style="font-size:var(--text-base); font-weight:700; color:var(--color-text); display:flex; align-items:center; gap:0.5rem; margin-bottom:1.25rem;">
+    <i data-lucide="flag" style="width:1rem;height:1rem;" aria-hidden="true"></i>
+    Hitos del Contrato
+  </h2>
+
+  {% if hitos %}
+  <div class="table-wrap" style="border:none; box-shadow:none;">
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Descripción</th>
+          <th>Fecha límite</th>
+          <th>Estado</th>
+          <th>Archivo</th>
+          {% if current_user_rol in ['administrador', 'supervision'] %}
+          <th>Cambiar estado</th>
+          {% endif %}
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for hito in hitos %}
+        <tr>
+          <td style="font-weight:500;">{{ hito.nombre }}</td>
+          <td class="text-muted text-sm">{{ hito.descripcion or '—' }}</td>
+          <td>{{ hito.fecha_limite|date_col }}</td>
+          <td>
+            <span id="badge-hito-{{ hito.id }}"
+                  class="badge badge--{{ 'success' if hito.estado == 'aprobado' else ('warning' if hito.estado == 'en_revision' else 'neutral') }}">
+              {{ {'pendiente':'Pendiente','en_revision':'En revisión','aprobado':'Aprobado'}.get(hito.estado, hito.estado) }}
+            </span>
+          </td>
+          <td>
+            {% if hito.archivo_url %}
+            <a href="{{ hito.archivo_url }}" target="_blank" rel="noopener" class="btn btn--ghost btn--sm">
+              <i data-lucide="paperclip" aria-hidden="true"></i> Ver
+            </a>
+            {% else %}
+            <span class="text-muted text-sm">—</span>
+            {% endif %}
+          </td>
+          {% if current_user_rol in ['administrador', 'supervision'] %}
+          <td>
+            <select class="form-select"
+                    style="width:auto; padding:.25rem .5rem; font-size:var(--text-xs);"
+                    hx-patch="/api/hitos/{{ hito.id }}/estado"
+                    hx-trigger="change"
+                    hx-target="#badge-hito-{{ hito.id }}"
+                    hx-swap="outerHTML"
+                    onclick="event.stopPropagation()">
+              <option value="pendiente"   {% if hito.estado == 'pendiente'   %}selected{% endif %}>Pendiente</option>
+              <option value="en_revision" {% if hito.estado == 'en_revision' %}selected{% endif %}>En revisión</option>
+              <option value="aprobado"    {% if hito.estado == 'aprobado'    %}selected{% endif %}>Aprobado</option>
+            </select>
+          </td>
+          {% endif %}
+          <td>
+            <button class="btn btn--ghost btn--sm"
+                    hx-get="/api/comentarios?tipo=hito&ref={{ hito.id }}&contrato_id={{ contrato_activo_id }}"
+                    hx-target="#comments-panel-content"
+                    hx-swap="innerHTML"
+                    hx-on::after-request="document.getElementById('comments-section').style.display=''">
+              <i data-lucide="message-circle" aria-hidden="true"></i>
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div id="comments-section" class="card" style="margin-top:1rem; display:none; box-shadow:none; border-color:var(--color-border);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+      <h3 style="font-size:var(--text-sm); font-weight:600;">Comentarios del hito</h3>
+      <button class="btn btn--ghost btn--sm"
+              onclick="document.getElementById('comments-section').style.display='none'">
+        <i data-lucide="x" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div id="comments-panel-content"></div>
+  </div>
+
+  {% else %}
+  <div style="padding:2.5rem; text-align:center; color:var(--color-text-muted);">
+    <i data-lucide="flag-off" style="width:2rem;height:2rem; margin:0 auto 0.75rem; display:block; opacity:.4;" aria-hidden="true"></i>
     No hay hitos registrados para este contrato.
   </div>
   {% endif %}
+
 </div>
 
-<div id="comments-section" class="card" style="margin-top:1rem;display:none;">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-    <h3 style="font-size:var(--text-base);font-weight:600;">Comentarios del hito</h3>
-    <button class="btn btn--ghost btn--sm"
-            onclick="document.getElementById('comments-section').style.display='none'">
-      <i data-lucide="x" aria-hidden="true"></i> Cerrar
-    </button>
-  </div>
-  <div id="comments-panel-content"></div>
-</div>
+{% endblock %}
 
+
+{% block extra_scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ── Configuración de tipos de formulario ────────────────── */
+  const TIPO_CONFIG = {
+    f01: { color: '#3B82F6', label: 'F01 Encuestas' },
+    f02: { color: '#F97316', label: 'F02 Infraestructura' },
+    f03: { color: '#8B5CF6', label: 'F03 TSS Nodos' },
+    f04: { color: '#14B8A6', label: 'F04 MAAT' },
+    f06: { color: '#22C55E', label: 'F06 Enrutamiento' },
+    f07: { color: '#EAB308', label: 'F07 Tendido' },
+    f08: { color: '#EF4444', label: 'F08 Empalmes' },
+    f09: { color: '#6366F1', label: 'F09 ONT' },
+    f10: { color: '#EC4899', label: 'F10 NAP' },
+  };
+
+  const ESTADO_STYLE = {
+    APROBADO:  { bg: '#DCFCE7', color: '#16A34A' },
+    REVISADO:  { bg: '#FFF7ED', color: '#EA580C' },
+    BORRADOR:  { bg: '#F1F5F9', color: '#64748B' },
+  };
+
+  /* ── Estado del mapa ─────────────────────────────────────── */
+  let allPoints   = [];
+  let activeTypes = new Set(Object.keys(TIPO_CONFIG));
+  let filterEstado    = '';
+  let filterMunicipio = '';
+
+  /* ── Inicializar mapa ────────────────────────────────────── */
+  const map = L.map('mapa-reportes', { zoomControl: true }).setView([0.8, -76.6], 9);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  }).addTo(map);
+
+  const markersLayer = L.layerGroup().addTo(map);
+
+  /* ── Construir popup HTML ────────────────────────────────── */
+  function buildPopup(p) {
+    const cfg = TIPO_CONFIG[p.tipo_key] || {};
+    const eStyle = ESTADO_STYLE[p.estado] || ESTADO_STYLE.BORRADOR;
+    const estadoBadge = p.estado
+      ? `<span class="popup-badge" style="background:${eStyle.bg}; color:${eStyle.color};">${p.estado}</span>`
+      : '';
+    const municipioLine = p.municipio
+      ? `<div class="popup-meta">📍 ${p.municipio}</div>`
+      : '';
+    return `
+      <div class="popup-tipo" style="color:${cfg.color || '#555'};">${p.tipo_label}</div>
+      <div class="popup-ref">${p.ref}</div>
+      ${municipioLine}
+      ${estadoBadge}
+    `;
+  }
+
+  /* ── Aplicar filtros y redibujar markers ─────────────────── */
+  function applyFilters() {
+    markersLayer.clearLayers();
+    let count = 0;
+
+    allPoints.forEach(function (p) {
+      if (!activeTypes.has(p.tipo_key)) return;
+      if (filterEstado    && p.estado    !== filterEstado)    return;
+      if (filterMunicipio && p.municipio !== filterMunicipio) return;
+
+      const cfg = TIPO_CONFIG[p.tipo_key] || { color: '#888' };
+      const marker = L.circleMarker([p.lat, p.lon], {
+        radius:      7,
+        fillColor:   cfg.color,
+        color:       '#fff',
+        weight:      1.5,
+        opacity:     1,
+        fillOpacity: 0.85,
+      }).bindPopup(buildPopup(p), { maxWidth: 220 });
+
+      markersLayer.addLayer(marker);
+      count++;
+    });
+
+    document.getElementById('map-count').textContent = count;
+  }
+
+  /* ── Construir barra de capas ────────────────────────────── */
+  function buildLayerBar(tiposPresentes) {
+    const bar = document.getElementById('layer-bar');
+    bar.innerHTML = '';
+
+    if (tiposPresentes.length === 0) {
+      bar.innerHTML = '<span style="font-size:var(--text-xs);color:var(--color-text-muted);">Sin datos geográficos</span>';
+      return;
+    }
+
+    tiposPresentes.forEach(function (key) {
+      const cfg = TIPO_CONFIG[key] || { color: '#888', label: key };
+      const lbl = document.createElement('label');
+      lbl.className = 'layer-toggle';
+      lbl.title = cfg.label;
+      lbl.innerHTML =
+        `<input type="checkbox" checked data-tipo="${key}" aria-label="${cfg.label}">` +
+        `<span class="layer-toggle__dot" style="background:${cfg.color};"></span>` +
+        `<span>${cfg.label}</span>`;
+
+      lbl.querySelector('input').addEventListener('change', function (e) {
+        if (e.target.checked) {
+          activeTypes.add(key);
+          lbl.classList.remove('is-off');
+        } else {
+          activeTypes.delete(key);
+          lbl.classList.add('is-off');
+        }
+        applyFilters();
+      });
+
+      bar.appendChild(lbl);
+    });
+  }
+
+  /* ── Poblar select de municipios ─────────────────────────── */
+  function buildMunicipioSelect(points) {
+    const municipios = [...new Set(points.map(p => p.municipio).filter(Boolean))].sort();
+    const sel = document.getElementById('filter-municipio');
+    municipios.forEach(function (m) {
+      const opt = document.createElement('option');
+      opt.value = m;
+      opt.textContent = m;
+      sel.appendChild(opt);
+    });
+  }
+
+  /* ── Cargar datos geo desde la API ───────────────────────── */
+  fetch('/api/geo-reportes')
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      allPoints = data;
+
+      const tiposPresentes = [...new Set(data.map(p => p.tipo_key))];
+      buildLayerBar(tiposPresentes);
+      buildMunicipioSelect(data);
+      applyFilters();
+
+      if (data.length > 0) {
+        const bounds = data.map(p => [p.lat, p.lon]);
+        map.fitBounds(bounds, { padding: [32, 32], maxZoom: 13 });
+      }
+    })
+    .catch(function () {
+      document.getElementById('map-count').textContent = '—';
+    });
+
+  /* ── Listeners de filtros ────────────────────────────────── */
+  document.getElementById('filter-estado').addEventListener('change', function (e) {
+    filterEstado = e.target.value;
+    applyFilters();
+  });
+
+  document.getElementById('filter-municipio').addEventListener('change', function (e) {
+    filterMunicipio = e.target.value;
+    applyFilters();
+  });
+
+  document.getElementById('map-reset').addEventListener('click', function () {
+    document.getElementById('filter-estado').value    = '';
+    document.getElementById('filter-municipio').value = '';
+    filterEstado    = '';
+    filterMunicipio = '';
+    activeTypes     = new Set(Object.keys(TIPO_CONFIG));
+
+    document.querySelectorAll('#layer-bar input[type="checkbox"]').forEach(function (cb) {
+      cb.checked = true;
+      cb.closest('.layer-toggle').classList.remove('is-off');
+    });
+
+    applyFilters();
+
+    if (allPoints.length > 0) {
+      map.fitBounds(allPoints.map(p => [p.lat, p.lon]), { padding: [32, 32], maxZoom: 13 });
+    }
+  });
+
+  /* ── Meta física: expand / collapse ─────────────────────── */
+  window.toggleMfRow = function (id) {
+    const chevron = document.getElementById('chevron-' + id);
+    const rows    = document.querySelectorAll('.mf-detail--' + id);
+    const isOpen  = chevron.classList.contains('is-open');
+
+    chevron.classList.toggle('is-open', !isOpen);
+
+    rows.forEach(function (row) {
+      row.style.display = isOpen ? 'none' : '';
+    });
+  };
+
+})();
+</script>
 {% endblock %}

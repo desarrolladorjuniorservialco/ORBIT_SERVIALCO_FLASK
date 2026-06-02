@@ -9,6 +9,7 @@ from app.models.contratos import (
     get_adiciones_resumen,
 )
 from app.models.hitos import get_hitos
+from app.models.mapa_hitos import get_mf_bd, get_mf_aux, build_municipios
 
 
 @bp.route('/dashboard/general')
@@ -48,7 +49,18 @@ def hitos():
     contrato_id = session.get('contrato_activo_id')
     hitos_list = get_hitos(contrato_id) if contrato_id else []
 
-    return render_template('dashboard/hitos.html', hitos=hitos_list)
+    mf_bd_raw  = get_mf_bd(contrato_id)  if contrato_id else []
+    mf_aux_raw = get_mf_aux(contrato_id) if contrato_id else []
+
+    municipios  = build_municipios(mf_bd_raw)
+    mf_aux_map  = {r['codigo']: r['descripcion'] for r in mf_aux_raw}
+
+    return render_template(
+        'dashboard/hitos.html',
+        hitos=hitos_list,
+        municipios=municipios,
+        mf_aux=mf_aux_map,
+    )
 
 
 @bp.route('/dashboard/encuestas')

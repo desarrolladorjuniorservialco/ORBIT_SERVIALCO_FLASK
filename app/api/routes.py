@@ -1,5 +1,5 @@
 import math
-from flask import request, session, render_template, make_response, abort, url_for
+from flask import request, session, render_template, make_response, abort, url_for, jsonify
 from app.api import bp
 from app.utils.auth import login_required, role_required
 from app.models.comentarios import get_comentarios as get_comentarios_db
@@ -9,6 +9,7 @@ from app.models.encuestas import delete_encuesta as delete_encuesta_db
 from app.models.instalaciones import get_instalaciones as get_instalaciones_db
 from app.models.instalaciones import delete_instalacion as delete_instalacion_db
 from app.models.hitos import update_estado_hito as update_estado_hito_db
+from app.models.mapa_hitos import get_geo_reportes as get_geo_reportes_db
 
 # ── Selector de contrato ───────────────────────────────────
 
@@ -167,4 +168,15 @@ def delete_encuesta(encuesta_id):
 def delete_instalacion(instalacion_id):
     delete_instalacion_db(instalacion_id)
     return '', 200
+
+
+# ── Geo: reportes con coordenadas ──────────────────────────
+
+@bp.route('/geo-reportes', methods=['GET'])
+@login_required
+def get_geo_reportes():
+    contrato_id = session.get('contrato_activo_id')
+    if not contrato_id:
+        return jsonify([])
+    return jsonify(get_geo_reportes_db(contrato_id))
 
