@@ -9,8 +9,6 @@ from app.models.encuestas import delete_encuesta as delete_encuesta_db
 from app.models.instalaciones import get_instalaciones as get_instalaciones_db
 from app.models.instalaciones import delete_instalacion as delete_instalacion_db
 from app.models.hitos import update_estado_hito as update_estado_hito_db
-from app.models.contratos import update_porcentaje_ejecutado as update_porcentaje_db
-
 
 # ── Selector de contrato ───────────────────────────────────
 
@@ -170,21 +168,3 @@ def delete_instalacion(instalacion_id):
     delete_instalacion_db(instalacion_id)
     return '', 200
 
-
-# ── Contratos: porcentaje ejecutado ───────────────────────
-
-@bp.route('/contratos/ejecutado', methods=['POST'])
-@login_required
-@role_required('administrador', 'supervision')
-def update_ejecutado():
-    contrato_id = session.get('contrato_activo_id')
-    try:
-        porcentaje = float(request.form.get('porcentaje', 0))
-        porcentaje = max(0.0, min(100.0, porcentaje))
-    except (TypeError, ValueError):
-        abort(400)
-
-    update_porcentaje_db(contrato_id, porcentaje)
-    resp = make_response('', 200)
-    resp.headers['HX-Refresh'] = 'true'
-    return resp

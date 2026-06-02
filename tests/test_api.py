@@ -122,12 +122,3 @@ def test_delete_instalacion_requires_admin(auth_session):
     with patch('app.api.routes.delete_instalacion_db', return_value=True):
         resp = auth_session.delete('/api/instalaciones/i1')
         assert resp.status_code == 200
-
-
-# ── porcentaje ejecutado ────────────────────────────────────
-
-def test_update_porcentaje_ejecutado(auth_session):
-    with patch('app.api.routes.update_porcentaje_db', return_value={}):
-        resp = auth_session.post('/api/contratos/ejecutado',
-                                 data={'porcentaje': '75.5'})
-        assert resp.status_code == 200

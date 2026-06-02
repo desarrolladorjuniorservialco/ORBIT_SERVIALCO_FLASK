@@ -4,17 +4,21 @@ from unittest.mock import patch
 CONTRATO_FIXTURE = {
     'id': 'test-contrato-id',
     'nombre': 'Contrato Fibra',
-    'objeto': 'Tendido de fibra óptica',
-    'entidad_contratante': 'MinTIC',
-    'localizacion': 'Putumayo',
+    'contratista': 'Empresa A SAS',
+    'intrventoria': 'Interventores SA',
+    'supervisor': 'Juan Perez',
     'fecha_inicio': '2024-01-01',
     'fecha_fin': '2025-12-31',
-    'plazo_meses': 24,
+    'activo': True,
     'valor_contrato': 40700000,
-    'nombre_contratista': 'Empresa A SAS',
-    'nombre_interventoria': 'Interventores SA',
-    'porcentaje_ejecutado': 65.0,
+    'plazo_actual': '2026-03-31',
+    'prorrogas': 1,
+    'adiciones': 1,
+    'valor_actual': 45000000,
 }
+
+PRORROGAS_FIXTURE = {'count': 1, 'plazo_actual': '2026-03-31'}
+ADICIONES_FIXTURE = {'count': 1, 'valor_actual': 45000000}
 
 
 def test_general_redirects_to_login_when_not_authenticated(client):
@@ -24,10 +28,12 @@ def test_general_redirects_to_login_when_not_authenticated(client):
 
 
 def test_general_returns_200_when_authenticated(auth_session):
-    with patch('app.dashboard.routes.get_contrato', return_value=CONTRATO_FIXTURE):
+    with patch('app.dashboard.routes.get_contrato', return_value=CONTRATO_FIXTURE), \
+         patch('app.dashboard.routes.get_prorrogas_resumen', return_value=PRORROGAS_FIXTURE), \
+         patch('app.dashboard.routes.get_adiciones_resumen', return_value=ADICIONES_FIXTURE):
         resp = auth_session.get('/dashboard/general')
         assert resp.status_code == 200
-        assert 'Contrato Fibra'.encode() in resp.data or b'MinTIC' in resp.data
+        assert 'Contrato Fibra'.encode() in resp.data
 
 
 def test_general_returns_403_if_module_not_visible(client):
@@ -38,6 +44,15 @@ def test_general_returns_403_if_module_not_visible(client):
         sess['contrato_activo_id'] = 'c1'
     resp = client.get('/dashboard/general')
     assert resp.status_code == 403
+
+
+def test_general_muestra_estado_vacio_sin_contrato(auth_session):
+    with patch('app.dashboard.routes.get_contrato', return_value=None), \
+         patch('app.dashboard.routes.get_prorrogas_resumen', return_value={'count': 0, 'plazo_actual': None}), \
+         patch('app.dashboard.routes.get_adiciones_resumen', return_value={'count': 0, 'valor_actual': None}):
+        resp = auth_session.get('/dashboard/general')
+        assert resp.status_code == 200
+        assert 'contrato activo'.encode() in resp.data.lower()
 
 
 def test_hitos_returns_200_when_authenticated(auth_session):
