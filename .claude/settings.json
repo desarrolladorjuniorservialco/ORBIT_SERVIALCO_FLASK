@@ -18,7 +18,18 @@
       "Bash(Select-Object -ExpandProperty FullName)",
       "Bash(Sort-Object)",
       "Bash(.venv\\\\Scripts\\\\python.exe -m pytest tests/ -q)",
-      "Bash(python -m pytest tests/ -q)"
+      "Bash(python -m pytest tests/ -q)",
+      "Bash(npx skills *)",
+      "Bash(node .agents/skills/impeccable/scripts/context.mjs)",
+      "Bash(.venv\\\\Scripts\\\\python -m pytest tests/test_models/test_contratos.py -v)",
+      "Bash(.venv/Scripts/python -m pytest tests/test_models/test_contratos.py -v)",
+      "Bash(git commit *)",
+      "Bash(python -m pytest tests/test_models/test_contratos.py -v)",
+      "Bash(.venv\\\\Scripts\\\\python -m pytest tests/test_dashboard.py::test_general_returns_200_when_authenticated -v)",
+      "Bash(.venv/Scripts/python -m pytest tests/test_dashboard.py::test_general_returns_200_when_authenticated -v)",
+      "Bash(.venv\\\\Scripts\\\\python -m pytest tests/test_dashboard.py -v)",
+      "Bash(.venv/Scripts/python -m pytest -v)",
+      "Bash(.venv\\\\Scripts\\\\python -m pytest -v)"
     ],
     "additionalDirectories": [
       "c:\\Users\\Victor Pulido\\Documents\\GIT\\ORBIT_SERVIALCO_FLASK\\docs\\superpowers"
