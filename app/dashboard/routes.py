@@ -2,7 +2,12 @@ from datetime import date
 from flask import render_template, session, abort
 from app.dashboard import bp
 from app.utils.auth import login_required
-from app.models.contratos import get_contrato, calcular_progreso_tiempo
+from app.models.contratos import (
+    get_contrato,
+    calcular_progreso_tiempo,
+    get_prorrogas_resumen,
+    get_adiciones_resumen,
+)
 from app.models.hitos import get_hitos
 
 
@@ -14,20 +19,23 @@ def general():
 
     contrato_id = session.get('contrato_activo_id')
     contrato = get_contrato(contrato_id) if contrato_id else None
+    prorrogas = get_prorrogas_resumen(contrato_id) if contrato_id else {'count': 0, 'plazo_actual': None}
+    adiciones = get_adiciones_resumen(contrato_id) if contrato_id else {'count': 0, 'valor_actual': None}
 
     progreso_tiempo = 0.0
-    if contrato and contrato.get('fecha_inicio') and contrato.get('fecha_fin'):
-        inicio = date.fromisoformat(str(contrato['fecha_inicio']))
-        fin = date.fromisoformat(str(contrato['fecha_fin']))
-        progreso_tiempo = calcular_progreso_tiempo(inicio, fin)
-
-    progreso_ejecutado = float(contrato.get('porcentaje_ejecutado', 0)) if contrato else 0.0
+    if contrato and contrato.get('fecha_inicio'):
+        fecha_limite = contrato.get('plazo_actual') or contrato.get('fecha_fin')
+        if fecha_limite:
+            inicio = date.fromisoformat(str(contrato['fecha_inicio']))
+            fin = date.fromisoformat(str(fecha_limite))
+            progreso_tiempo = calcular_progreso_tiempo(inicio, fin)
 
     return render_template(
         'dashboard/general.html',
         contrato=contrato,
+        prorrogas=prorrogas,
+        adiciones=adiciones,
         progreso_tiempo=progreso_tiempo,
-        progreso_ejecutado=progreso_ejecutado,
     )
 
 

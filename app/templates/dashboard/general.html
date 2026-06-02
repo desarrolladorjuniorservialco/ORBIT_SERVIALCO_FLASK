@@ -11,6 +11,13 @@
 </div>
 {% else %}
 
+<!-- ── Encabezado del contrato ────────────────────────────── -->
+{% if contrato.nombre %}
+<div style="margin-bottom:1rem;">
+  <h2 style="font-size:var(--text-xl);font-weight:700;margin:0;">{{ contrato.nombre }}</h2>
+</div>
+{% endif %}
+
 <!-- ── Barras de progreso ──────────────────────────────────── -->
 <div class="progress-grid" style="margin-bottom:1.5rem;">
 
@@ -36,28 +43,24 @@
   <div class="card card--compact">
     <div class="progress-wrap">
       <div class="progress-wrap__header">
-        <span style="font-weight:600;">Ejecución del contrato</span>
-        <span style="font-size:var(--text-lg); font-weight:700; color:var(--color-{{ progreso_ejecutado|progress_color }});">
-          {{ progreso_ejecutado }}%
-        </span>
+        <span style="font-weight:600;">Prórrogas / Adiciones</span>
       </div>
-      <div class="progress-track">
-        <div class="progress-bar progress-bar--{{ progreso_ejecutado|progress_color }}"
-             style="width:{{ progreso_ejecutado }}%;"></div>
+      <div style="display:flex;gap:2rem;margin-top:.5rem;">
+        <div>
+          <div style="font-size:var(--text-xs);color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.05em;">Prórrogas</div>
+          <div style="font-size:var(--text-lg);font-weight:700;">{{ prorrogas.count }}</div>
+          {% if prorrogas.plazo_actual %}
+          <div style="font-size:var(--text-xs);color:var(--color-text-muted);">Plazo actual: {{ prorrogas.plazo_actual|date_col }}</div>
+          {% endif %}
+        </div>
+        <div>
+          <div style="font-size:var(--text-xs);color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.05em;">Adiciones</div>
+          <div style="font-size:var(--text-lg);font-weight:700;">{{ adiciones.count }}</div>
+          {% if adiciones.valor_actual %}
+          <div style="font-size:var(--text-xs);color:var(--color-text-muted);">Valor actual: {{ adiciones.valor_actual|currency_col }}</div>
+          {% endif %}
+        </div>
       </div>
-      {% if current_user_rol in ['administrador', 'supervision'] %}
-      <form style="display:flex;gap:.5rem;margin-top:.5rem;"
-            hx-post="/api/contratos/ejecutado"
-            hx-swap="none"
-            hx-on::after-request="window.location.reload()">
-        <input type="number" name="porcentaje" min="0" max="100" step="0.1"
-               value="{{ progreso_ejecutado }}"
-               class="form-input"
-               style="width:90px;"
-               placeholder="%">
-        <button type="submit" class="btn btn--ghost btn--sm">Actualizar</button>
-      </form>
-      {% endif %}
     </div>
   </div>
 
