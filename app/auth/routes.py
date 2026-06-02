@@ -1,8 +1,11 @@
+import logging
 from flask import render_template, redirect, url_for, request, session, flash
 from app.auth import bp
 from app.utils.supabase_client import get_auth_client, get_data_client
 from app.utils.auth import login_required
 from app.models.usuarios import get_usuario, get_modulos_visibles, get_contratos_by_user
+
+logger = logging.getLogger(__name__)
 
 
 @bp.route('/login', methods=['GET', 'POST'])
@@ -39,15 +42,25 @@ def login():
             return redirect(url_for('dashboard.general'))
         # ───────────────────────────────────────────────────────
 
+        auth_client = get_auth_client()
+        if auth_client is None:
+            flash('Servicio de autenticación no disponible. Contacta al administrador.', 'error')
+            logger.error('Supabase auth client no disponible — verifica SUPABASE_URL y SUPABASE_ANON_KEY')
+            return render_template('auth/login.html')
+
         try:
-            auth_client = get_auth_client()
             resp = auth_client.auth.sign_in_with_password(
                 {'email': email, 'password': password}
             )
             user_id = resp.user.id
             access_token = resp.session.access_token
             refresh_token = resp.session.refresh_token
+        except Exception as exc:
+            logger.warning('Login fallido para %s: %s', email, exc)
+            flash('Credenciales incorrectas', 'error')
+            return render_template('auth/login.html')
 
+        try:
             usuario = get_usuario(user_id)
             if not usuario or not usuario.get('activo'):
                 flash('Usuario inactivo o no encontrado', 'error')
@@ -70,8 +83,9 @@ def login():
 
             return redirect(url_for('dashboard.general'))
 
-        except Exception:
-            flash('Credenciales incorrectas', 'error')
+        except Exception as exc:
+            logger.exception('Error al cargar datos del usuario %s: %s', user_id, exc)
+            flash('Error al cargar datos del usuario', 'error')
             return render_template('auth/login.html')
 
     return render_template('auth/login.html')
