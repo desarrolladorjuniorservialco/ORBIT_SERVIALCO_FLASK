@@ -32,14 +32,39 @@ def calcular_progreso_tiempo(
     return round((transcurrido / total) * 100, 1)
 
 
-def update_porcentaje_ejecutado(contrato_id: str, porcentaje: float) -> dict:
+def get_prorrogas_resumen(contrato_id: str) -> dict:
     client = get_data_client()
     if client is None:
-        return {}
+        return {'count': 0, 'plazo_actual': None}
     resp = (
-        client.table('contratos')
-        .update({'porcentaje_ejecutado': porcentaje})
-        .eq('id', contrato_id)
+        client.table('contratos_prorrogas')
+        .select('numero, fecha_fin')
+        .eq('contrato_id', contrato_id)
+        .order('numero')
         .execute()
     )
-    return resp.data[0] if resp.data else {}
+    rows = resp.data or []
+    ultima = rows[-1] if rows else None
+    return {
+        'count': len(rows),
+        'plazo_actual': ultima['fecha_fin'] if ultima else None,
+    }
+
+
+def get_adiciones_resumen(contrato_id: str) -> dict:
+    client = get_data_client()
+    if client is None:
+        return {'count': 0, 'valor_actual': None}
+    resp = (
+        client.table('contratos_adiciones')
+        .select('numero, valor_actual')
+        .eq('contrato_id', contrato_id)
+        .order('numero')
+        .execute()
+    )
+    rows = resp.data or []
+    ultima = rows[-1] if rows else None
+    return {
+        'count': len(rows),
+        'valor_actual': ultima['valor_actual'] if ultima else None,
+    }
