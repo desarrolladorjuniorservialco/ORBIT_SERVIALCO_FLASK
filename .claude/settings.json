@@ -30,7 +30,8 @@
       "Bash(.venv\\\\Scripts\\\\python -m pytest tests/test_dashboard.py -v)",
       "Bash(.venv/Scripts/python -m pytest -v)",
       "Bash(.venv\\\\Scripts\\\\python -m pytest -v)",
-      "Bash(.venv\\\\Scripts\\\\python.exe -c \"from app import create_app; app = create_app\\(\\); print\\('OK'\\)\")"
+      "Bash(.venv\\\\Scripts\\\\python.exe -c \"from app import create_app; app = create_app\\(\\); print\\('OK'\\)\")",
+      "Bash(.venvScriptspython.exe -c ' *)"
     ],
     "additionalDirectories": [
       "c:\\Users\\Victor Pulido\\Documents\\GIT\\ORBIT_SERVIALCO_FLASK\\docs\\superpowers"
