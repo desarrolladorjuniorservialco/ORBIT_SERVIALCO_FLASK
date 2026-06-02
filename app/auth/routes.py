@@ -29,7 +29,7 @@ def login():
             session['user_id'] = 'dev-user-id'
             session['email'] = DEV_EMAIL
             session['nombre'] = 'Admin Local'
-            session['rol'] = 'administrador'
+            session['rol'] = 'admin'
             session['access_token'] = 'dev-token'
             session['refresh_token'] = 'dev-refresh'
             session['contratos_lista'] = [{'id': 'dev-contrato-id', 'nombre': 'Contrato Demo'}]
@@ -73,7 +73,7 @@ def login():
             session.clear()
             session['user_id'] = user_id
             session['email'] = email
-            session['nombre'] = usuario['nombre_completo']
+            session['nombre'] = usuario['nombre']
             session['rol'] = rol
             session['access_token'] = access_token
             session['refresh_token'] = refresh_token
